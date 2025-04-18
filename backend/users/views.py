@@ -22,13 +22,21 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=False,
-        methods=['put', 'patch'],
+        methods=['put', 'patch', 'delete'],
         url_path='me/avatar',
         permission_classes=[IsAuthenticated],
     )
     def avatar(self, request):
+        user = request.user
+
+        if request.method == 'DELETE':
+            if user.avatar:
+                user.avatar.delete(save=False)
+                user.avatar = None
+                user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         serializer = AvatarSerializer(
-            instance=request.user,
+            instance=user,
             data=request.data,
             partial=True
         )
