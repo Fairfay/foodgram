@@ -7,7 +7,9 @@ from djoser.views import UserViewSet
 
 from api.pagination import CustomPagination
 from api.serializers import FollowSerializer
-from users.serializers import CustomUserCreateSerializer, CustomUserSerializer
+from users.serializers import (CustomUserCreateSerializer,
+                               CustomUserSerializer,
+                               AvatarSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
