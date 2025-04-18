@@ -10,7 +10,7 @@ from users.models import CustomUser
 
 class CustomUserSerializer(UserSerializer):
     '''Сериализатор для пользователя'''
-    avatar = Base64ImageField()
+    avatar = Base64ImageField(required=False)
     is_subscribed = SerializerMethodField(read_only=True)
 
     class Meta:
