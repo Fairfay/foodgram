@@ -1,4 +1,51 @@
+# version: '3.3'
+# services:
+#   db:
+#     image: postgres:13.10
+#     volumes:
+#       - db_value:/var/lib/postgresql/data/
+#     env_file:
+#       - ./.env
+#   backend:
+#     build: ../backend
+#     restart: always
+#     volumes:
+#       - backend_static:/app/static/
+#       - media_value:/app/media/
+#     depends_on:
+#       - db
+#     env_file:
+#       - ./.env
+#   frontend:
+#     container_name: foodgram-front
+#     build: ../frontend
+#     volumes:
+#       - ../frontend/:/app/result_build/
+#     depends_on:
+#       - backend
+#   nginx:
+#     container_name: foodgram-proxy
+#     image: nginx:1.25.4-alpine
+#     restart: always
+#     ports:
+#       - "8000:80"
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+#       - ../frontend/build:/usr/share/nginx/html/
+#       - ../docs/:/usr/share/nginx/html/api/docs/
+#       - ../docs/:/usr/share/nginx/html/api/docs/
+#       - backend_static:/usr/share/nginx/html/static/:ro
+#       - media_value:/usr/share/nginx/html/media/:ro
+#     depends_on:
+#       - backend
+#       - frontend
+
+# volumes:
+#   backend_static:
+#   media_value:
+#   db_value:
 version: '3.3'
+
 services:
   db:
     image: postgres:13.10
@@ -6,23 +53,26 @@ services:
       - db_value:/var/lib/postgresql/data/
     env_file:
       - ./.env
+
   backend:
     build: ../backend
     restart: always
     volumes:
-      - backend_static:/app/static/
-      - media_value:/app/media/
+      - backend_static:/app/static/      # django collectstatic
+      - media_value:/app/media/         # user-uploaded файлы
     depends_on:
       - db
     env_file:
       - ./.env
+
   frontend:
     container_name: foodgram-front
     build: ../frontend
     volumes:
-      - ../frontend/:/app/result_build/
+      - ../frontend/build:/app/build/   # просто чтобы иметь кэш, но nginx отдаёт из своего тома
     depends_on:
       - backend
+
   nginx:
     container_name: foodgram-proxy
     image: nginx:1.25.4-alpine
@@ -30,12 +80,10 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
-      - ../docs/:/usr/share/nginx/html/api/docs/
-      - backend_static:/usr/share/nginx/html/static/:ro
-      - media_value:/usr/share/nginx/html/media/:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../frontend/build:/usr/share/nginx/html:ro        # React‑build
+      - backend_static:/var/www/django_static:ro          # Django‑static
+      - media_value:/var/www/media:ro                     # media
     depends_on:
       - backend
       - frontend
