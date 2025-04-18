@@ -119,7 +119,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         '''Добавление ингредиентов'''
         IngredientRecipes.objects.bulk_create([
             IngredientRecipes(
-                reciies=recipes,
+                recipes=recipes,
                 ingredients=ingredient['ingredients'],
                 amount=ingredient.get('amount'),
             ) for ingredient in ingredients
