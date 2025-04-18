@@ -1,4 +1,13 @@
-Находясь в папке infra, выполните команду docker-compose up. При выполнении этой команды контейнер frontend, описанный в docker-compose.yml, подготовит файлы, необходимые для работы фронтенд-приложения, а затем прекратит свою работу.
+Находясь в папке infra, выполните команду docker-compose up --build.
 
-По адресу http://localhost изучите фронтенд веб-приложения, а по адресу http://localhost/api/docs/ — спецификацию API.
-
+Находясь в папке /infra, запустить сборку образа Docker:
+sudo docker compose up -d
+Выполните миграции:
+sudo docker compose exec infra-backend python manage.py makemigrations
+sudo docker compose exec infra-backend python manage.py migrate
+Создайте суперпользователя:
+sudo docker compose exec infra-backend python manage.py createsuperuser
+Выполните команду collectstatic:
+sudo docker compose exec infra-backend python manage.py collectstatic --no-input
+Заполните базу данными:
+sudo docker compose exec infra-backend python manage.py import_data ingredients.csv
