@@ -18,7 +18,7 @@ class CustomUserViewSet(UserViewSet):
     def get_permissions(self):
 
         public_actions = [
-            'list', 
+            'list',
             'retrieve',
             'create',
             'activation',
