@@ -121,7 +121,7 @@ class FollowViewSet(viewsets.ModelViewSet):
     def delete(self, request, *args, **kwargs):
         author_id = self.kwargs['id']
         user_id = request.user.id
-        Follow.objects.filter(user_id, author_id).delete()
+        Follow.objects.filter(user_id=user_id, author_id=author_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
