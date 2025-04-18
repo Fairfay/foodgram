@@ -1,6 +1,5 @@
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -24,20 +23,17 @@ class CustomUserViewSet(UserViewSet):
         methods=['put', 'patch'],
         url_path='me/avatar',
         permission_classes=[IsAuthenticated],
-        parser_classes=[JSONParser],
     )
     def avatar(self, request):
-        user = request.user
-        avatar_data = request.data.get('avatar')
-        if not avatar_data:
-            return Response(
-                {'error': 'Поле avatar обязательно.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        user.avatar = avatar_data
-        user.save()
-        serializer = CustomUserSerializer(user, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = AvatarSerializer(
+            instance=request.user,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        out = CustomUserSerializer(user, context={'request': request})
+        return Response(out.data, status=status.HTTP_200_OK)
 
     @action(detail=False, permission_classes=[IsAuthenticated])
     def subscriptions(self, request):

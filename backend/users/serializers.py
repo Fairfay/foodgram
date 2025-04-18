@@ -10,7 +10,7 @@ from users.models import CustomUser
 
 class CustomUserSerializer(UserSerializer):
     '''Сериализатор для пользователя'''
-    avatar = Base64ImageField(required=False)
+    avatar = Base64ImageField(required=False, max_length=None)
     is_subscribed = SerializerMethodField(read_only=True)
 
     class Meta:
@@ -35,7 +35,6 @@ class CustomUserSerializer(UserSerializer):
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     '''Создание пользователя'''
-    avatar = Base64ImageField()
     email = serializers.EmailField()
     username = serializers.CharField()
 
@@ -56,3 +55,12 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             'last_name': {'required': True},
             'avatar': {'required': False},
         }
+
+
+class AvatarSerializer(serializers.Serializer):
+    avatar = Base64ImageField()
+
+    def update(self, instance, validated_data):
+        instance.avatar = validated_data['avatar']
+        instance.save()
+        return instance
