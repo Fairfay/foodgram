@@ -1,5 +1,5 @@
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -14,6 +14,23 @@ from users.serializers import (CustomUserCreateSerializer,
 
 class CustomUserViewSet(UserViewSet):
     pagination_class = CustomPagination
+
+    def get_permissions(self):
+
+        public_actions = [
+            'list', 
+            'retrieve',
+            'create',
+            'activation',
+            'reset_password',
+            'reset_password_confirm',
+            'token_create',
+        ]
+        if self.action in public_actions:
+            perms = [AllowAny]
+        else:
+            perms = [IsAuthenticated]
+        return [p() for p in perms]
 
     def get_serializer_class(self):
         if self.action == 'create':
