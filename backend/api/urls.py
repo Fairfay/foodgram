@@ -13,11 +13,11 @@ router = DefaultRouter()
 router.register('tags', TagViewSet)
 router.register('ingredients', IngredientViewSet)
 router.register('recipes', RecipeViewSet)
+router.register("users", UserViewSet)
 # router.register('users', FollowViewSet, basename='users')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('users/', include('djoser.urls')),
-    path('users/', include('djoser.urls.jwt')),
-    path('auth/', include('djoser.urls.authtoken')),
+    path("", include("djoser.urls")),
+    re_path(r"^auth/", include("djoser.urls.authtoken")),
 ]
