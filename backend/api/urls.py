@@ -12,12 +12,12 @@ app_name = "api"
 router = DefaultRouter()
 router.register('tags', TagViewSet)
 router.register('ingredients', IngredientViewSet)
-router.register('users', UserViewSet)
 router.register('recipes', RecipeViewSet)
-router.register('users', FollowViewSet, basename='users')
+# router.register('users', FollowViewSet, basename='users')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path("", include("djoser.urls")),
-    re_path(r"^auth/", include("djoser.urls.authtoken"))
+    path('users/', include('djoser.urls')),
+    path('users/', include('djoser.urls.jwt')),
+    path('auth/', include('djoser.urls.authtoken')),
 ]
