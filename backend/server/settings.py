@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'colorfield',
+    'corsheaders',
 
     'identity.apps.IdentityConfig',
     'recipes.apps.RecipesConfig',
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -187,3 +189,10 @@ if DEBUG is True:
     MIDDLEWARE += [
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     ]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://tychindas.sytes.net",
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
