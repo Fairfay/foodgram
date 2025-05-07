@@ -91,12 +91,12 @@ AUTH_USER_MODEL = 'identity.User'
 
 DATABASES = {
     "default": {
-        'ENGINE': config('POSTGRES_ENGINE'),
-        'NAME': config('POSTGRES_DB'),
-        'USER': config('POSTGRES_USER'),
-        'PASSWORD': config('POSTGRES_PASSWORD'),
-        'HOST': config('POSTGRES_HOST'),
-        'PORT': config('POSTGRES_PORT'),
+        "ENGINE": os.getenv("POSTGRES_ENGINE", default="django.db.backends.sqlite3"),
+        "NAME": os.getenv("POSTGRES_NAME", default="sqlite"),
+        "USER": os.getenv("POSTGRES_USER", default="sqlite"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="sqlite"),
+        "HOST": os.getenv("POSTGRES_HOST", default="localhost"),
+        "PORT": os.getenv("POSTGRES_PORT", default="5432"),
     }
 }
 
