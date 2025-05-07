@@ -93,7 +93,7 @@ DATABASES = {
     "default": {
         "ENGINE": 'django.db.backends.postgresql',
         "NAME": 'postgres',
-        "USER": 'test',
+        "USER": 'postgres',
         "PASSWORD": 'postgres',
         "HOST": 'db',
         "PORT": '5432',
@@ -116,16 +116,17 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
     'SERIALIZERS': {
-        'user_create': 'api.serializers.CustomUserCreateSerializer',
-        'user': 'api.serializers.CustomUserSerializer',
-        'current_user': 'api.serializers.CustomUserSerializer',
+        'user_create': 'identity.serializers.CustomUserCreateSerializer',
+        'user': 'identity.serializers.CustomUserSerializer',
+        'current_user': 'identity.serializers.CustomUserSerializer',
     },
     'PERMISSIONS': {
         'user': ['rest_framework.permissions.IsAuthenticated'],
-        'user_list': ['rest_framework.permissions.IsAuthenticated'],
+        'user_list': ['rest_framework.permissions.AllowAny'],
         'user_create': ['rest_framework.permissions.AllowAny'],
         'token_create': ['rest_framework.permissions.AllowAny'],
-        'token_destroy': ['rest_framework.permissions.IsAuthenticated'],
+        'password_reset': ['rest_framework.permissions.AllowAny'],
+        'password_reset_confirm': ['rest_framework.permissions.AllowAny'],
     },
 }
 
