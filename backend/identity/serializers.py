@@ -7,7 +7,7 @@ from drf_extra_fields.fields import Base64ImageField
 from djoser.serializers import UserCreateSerializer, UserSerializer
 
 from recipes.models import Follow
-from identity.models import CustomUser
+from identity.models import User
 
 User = get_user_model()
 

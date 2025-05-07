@@ -3,7 +3,7 @@ from django_filters import rest_framework as filters
 from recipes.models import Recipe, Tag
 
 from rest_framework.filters import SearchFilter
-from identity.models import CustomUser
+from identity.models import User
 
 
 class IngredientSearchFilter(filters.CharFilter):
@@ -15,7 +15,7 @@ class RecipesFilter(filters.FilterSet):
     """Фильтрует рецепты по
     избранному, автору, списку покупок и
     тегам"""
-    author = filters.ModelChoiceFilter(queryset=CustomUser.objects.all())
+    author = filters.ModelChoiceFilter(querysetUser.objects.all())
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',

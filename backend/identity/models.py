@@ -3,7 +3,7 @@ from django.db import models
 from django.core.validators import RegexValidator
 
 
-class CustomUser(AbstractUser):
+class User(AbstractUser):
     email = models.EmailField(
         'Email',
         max_length=254,
