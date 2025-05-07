@@ -15,7 +15,7 @@ class RecipesFilter(filters.FilterSet):
     """Фильтрует рецепты по
     избранному, автору, списку покупок и
     тегам"""
-    author = filters.ModelChoiceFilter(querysetUser.objects.all())
+    author = filters.ModelChoiceFilter(queryset=User.objects.all())
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
