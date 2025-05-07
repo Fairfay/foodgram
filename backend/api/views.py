@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
 
 from recipes.models import (
     Follow, Ingredient, Recipe, RecipeIngredient,
@@ -51,6 +52,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     queryset = Recipe.objects.all()
     pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend]
     filterset_class = RecipesFilter
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 

@@ -79,7 +79,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
     ingredients = RecipeIngredientSerializer(
-        source='recipeingredient_set',
+        source='recipe_ingredients',
         many=True,
         read_only=True
     )
@@ -92,7 +92,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'tags', 'author', 'ingredients',
             'is_favorited', 'is_in_shopping_cart',
-            'name', 'image', 'text', 'cooking_time'
+            'name', 'image', 'text', 'cooking_time',
+            'pub_date'
         )
 
     def get_is_favorited(self, obj):
