@@ -29,7 +29,6 @@ class CustomUserSerializer(UserSerializer):
             'is_subscribed',
             'recipes_count',
             'avatar',
-            'bio'
         )
         read_only_fields = ('is_subscribed', 'recipes_count')
 
