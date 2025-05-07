@@ -11,7 +11,7 @@ from recipes.models import (
     Follow, Ingredient, Recipe, RecipeIngredient,
     Favorite, ShoppingCart, Tag
 )
-from users.models import User
+from identity.models import User
 from api.filters import IngredientSearchFilter, RecipesFilter
 from api.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from api.serializers import (

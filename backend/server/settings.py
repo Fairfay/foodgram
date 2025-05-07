@@ -59,8 +59,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://tychinda.sytes.net',
-    'http://localhost:3000',
+    'https://tychindas.sytes.net'
 ]
 
 ROOT_URLCONF = 'server.urls'
@@ -109,19 +108,6 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,
-}
-
-DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'HIDE_USERS': False,
-    'SERIALIZERS': {
-        'user': 'users.serializers.CustomUserSerializer',
-        'current_user': 'users.serializers.CustomUserSerializer',
-    },
-    'PERMISSIONS': {
-        'user': ('rest_framework.permissions.IsAuthenticated'),
-        'user_list': ('rest_framework.permissions.AllowAny')
-    },
 }
 
 
