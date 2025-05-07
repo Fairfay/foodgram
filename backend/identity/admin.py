@@ -1,48 +1,44 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from identity.models import User
+from identity.models import CustomUser
 
 
-class UserAdmin(BaseUserAdmin):
-    readonly_fields = ('id',)
-    list_display = ('id', 'username', 'email', 'last_name')
-    search_fields = ('username', 'last_name', 'email')
+@admin.register(CustomUser)
+class CustomUserAdmin(UserAdmin):
+    list_display = (
+        'username', 'email', 'first_name', 'last_name',
+        'is_staff', 'is_active', 'date_joined'
+    )
+    list_filter = ('is_staff', 'is_active', 'date_joined')
+    search_fields = ('username', 'email', 'first_name', 'last_name')
+    ordering = ('-date_joined',)
+    readonly_fields = ('date_joined',)
+    
     fieldsets = (
-        (None, {'fields': ('id', 'username', 'password')}),
-        (_('Personal info'), {'fields': (
-            'first_name', 'last_name', 'email',
-            'patronymic', 'avatar')}),
+        (None, {'fields': ('username', 'password')}),
+        (_('Personal info'), {
+            'fields': (
+                'first_name', 'last_name', 'email',
+                'avatar', 'bio'
+            )
+        }),
         (_('Permissions'), {
-            'fields': ('is_active', 'is_staff', 'is_superuser'),
+            'fields': (
+                'is_active', 'is_staff', 'is_superuser',
+                'groups', 'user_permissions'
+            ),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
+    
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2'),
-        }),
-        (_('Personal info'), {'fields': (
-            'first_name', 'last_name', 'email',
-            'patronymic', 'avatar')}),
-        (_('Permissions'), {
-            'fields': ('is_active', 'is_staff', 'is_superuser'),
+            'fields': (
+                'username', 'email', 'password1',
+                'password2', 'first_name', 'last_name'
+            ),
         }),
     )
-
-    def get_search_results(self, request, queryset, search_term):
-        if search_term:
-            if search_term.startswith('email:'):
-                search_term = search_term[6:]
-                queryset = queryset.filter(email__icontains=search_term)
-            else:
-                queryset = super().get_search_results(request,
-                                                      queryset,
-                                                      search_term)[0]
-
-        return queryset, queryset.count()
-
-
-admin.site.register(User, UserAdmin)

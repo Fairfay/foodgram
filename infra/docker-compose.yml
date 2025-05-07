@@ -9,6 +9,7 @@ services:
       - ./.env
 
   backend:
+    image: fairfay/foodgram-backend:latest
     build: ../backend
     restart: always
     volumes:
@@ -20,20 +21,23 @@ services:
       - ./.env
 
   frontend:
+    image: fairfay/foodgram-front:latest
+    container_name: foodgram-front
     build: ../frontend
     volumes:
-      - ./frontend/build:/app/build/
+      - ../frontend/build:/app/build/
     depends_on:
       - backend
 
   nginx:
+    container_name: foodgram-proxy
     image: nginx:1.25.4-alpine
     restart: always
     ports:
       - "8000:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./frontend/build:/usr/share/nginx/html:ro
+      - ../frontend/build:/usr/share/nginx/html:ro
       - backend_static:/var/www/django_static:ro
       - media_value:/var/www/media:ro
     depends_on:
@@ -43,4 +47,4 @@ services:
 volumes:
   backend_static:
   media_value:
-  db_value: 
+  db_value:
