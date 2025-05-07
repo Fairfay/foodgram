@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from djoser.views import UserViewSet
+from rest_framework.viewsets import ModelViewSet
 
 from api.serializers import FollowSerializer
 from identity.serializers import (
@@ -13,6 +14,7 @@ from identity.serializers import (
     AvatarSerializer
 )
 from recipes.models import Follow
+from .models import User
 
 
 class CustomPagination(PageNumberPagination):
@@ -51,29 +53,16 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=False,
-        methods=['put', 'patch', 'delete'],
-        url_path='me/avatar',
-        permission_classes=[IsAuthenticated]
+        methods=['put', 'patch'],
+        permission_classes=[IsAuthenticated],
+        serializer_class=AvatarSerializer
     )
     def avatar(self, request):
         user = request.user
-
-        if request.method == 'DELETE':
-            if user.avatar:
-                user.avatar.delete(save=False)
-                user.avatar = None
-                user.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        serializer = self.get_serializer(
-            instance=user,
-            data=request.data,
-            partial=True
-        )
+        serializer = self.get_serializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        out = CustomUserSerializer(user, context={'request': request})
-        return Response(out.data)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
         detail=False,
@@ -127,3 +116,27 @@ class CustomUserViewSet(UserViewSet):
         )
         follow.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CustomUserCreateSerializer
+        return CustomUserSerializer
+
+    @action(
+        detail=False,
+        methods=['put', 'patch'],
+        permission_classes=[IsAuthenticated],
+        serializer_class=AvatarSerializer
+    )
+    def avatar(self, request):
+        user = request.user
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)

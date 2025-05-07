@@ -5,14 +5,14 @@ from api.views import (
     FollowViewSet, IngredientViewSet,
     RecipeViewSet, TagViewSet
 )
-from identity.views import CustomUserViewSet
+from identity.views import UserViewSet
 
 app_name = "api"
 
 router = DefaultRouter()
 router.register('tags', TagViewSet)
 router.register('ingredients', IngredientViewSet)
-router.register('users', CustomUserViewSet)
+router.register('users', UserViewSet)
 router.register('recipes', RecipeViewSet)
 router.register('users', FollowViewSet, basename='users')
 
