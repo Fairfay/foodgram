@@ -11,7 +11,7 @@ class User(AbstractUser):
         help_text='Загрузите изображение в формате JPG или PNG'
     )
 
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     class Meta:
         verbose_name = 'Пользователь'
