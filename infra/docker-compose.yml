@@ -25,6 +25,8 @@ services:
     # image: fairfay/foodgram-front:latest
     container_name: foodgram-front
     build: ../frontend
+    ports:
+      - "3000:80"
     volumes:
       - ../frontend/build:/app/build/
     depends_on:
