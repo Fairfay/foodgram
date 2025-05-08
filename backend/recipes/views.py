@@ -154,6 +154,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_link(self, request, pk=None):
         """Get recipe link."""
         return Response({
-            'id': pk,
-            'link': f'/recipes/{pk}/'
+            'short-link': f'https://tychindas.sytes.net/recipes/{pk}/'
         })
