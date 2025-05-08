@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer, UserSerializer
-
+from drf_extra_fields.fields import Base64ImageField
 from .models import Subscription
 
 User = get_user_model()
@@ -9,6 +9,7 @@ User = get_user_model()
 
 class CustomUserCreateSerializer(UserCreateSerializer):
     """Serializer for user creation."""
+    avatar = Base64ImageField(required=False)
     class Meta:
         model = User
         fields = (
@@ -18,13 +19,14 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             'first_name',
             'last_name',
             'password',
+            'avatar',
         )
 
 
 class CustomUserSerializer(UserSerializer):
     """Serializer for user data."""
     is_subscribed = serializers.SerializerMethodField()
-
+    avatar = Base64ImageField(required=False)
     class Meta:
         model = User
         fields = (
@@ -34,6 +36,7 @@ class CustomUserSerializer(UserSerializer):
             'first_name',
             'last_name',
             'is_subscribed',
+            'avatar',
         )
 
     def get_is_subscribed(self, obj):
