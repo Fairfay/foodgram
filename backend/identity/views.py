@@ -3,14 +3,18 @@ from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
 from .models import Subscription
-from .serializers import CustomUserSerializer, SubscriptionSerializer
+from .serializers import (
+    CustomUserSerializer,
+    SubscriptionSerializer,
+    UserCreateSerializer
+)
 
 User = get_user_model()
 
@@ -30,16 +34,10 @@ class CustomUserViewSet(UserViewSet):
         return serializer
 
     def get_queryset(self):
-        user = self.request.user
-        if self.action in ('list', 'retrieve'):
-            return (
-                User.objects.prefetch_related(
-                    Subscriber.get_prefetch_subscribers('subscribers', user),
-                )
-                .order_by('id')
-                .all()
-            )
-        return User.objects.all()
+        queryset = User.objects.all()
+        if self.action == 'subscriptions':
+            return queryset.filter(following__user=self.request.user)
+        return queryset
 
     @action(
         methods=['get'],
@@ -91,9 +89,9 @@ class CustomUserViewSet(UserViewSet):
                     {'error': 'You are already subscribed to this user'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            Subscription.objects.create(user=user, author=author)
+            subscription = Subscription.objects.create(user=user, author=author)
             serializer = SubscriptionSerializer(
-                author,
+                subscription.author,
                 context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -112,12 +110,18 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
-        user = request.user
-        queryset = User.objects.filter(following__user=user)
-        pages = self.paginate_queryset(queryset)
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = SubscriptionSerializer(
+                page,
+                many=True,
+                context={'request': request}
+            )
+            return self.get_paginated_response(serializer.data)
         serializer = SubscriptionSerializer(
-            pages,
+            queryset,
             many=True,
             context={'request': request}
         )
-        return self.get_paginated_response(serializer.data) 
+        return Response(serializer.data) 
