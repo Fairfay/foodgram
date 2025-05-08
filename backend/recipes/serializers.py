@@ -9,6 +9,7 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
+from identity.serializers import CustomUserSerializer
 
 User = get_user_model()
 
@@ -49,7 +50,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     """Serializer for recipes."""
     tags = TagSerializer(many=True, read_only=True)
-    author = UserSerializer(read_only=True)
+    author = CustomUserSerializer(read_only=True)
     ingredients = RecipeIngredientSerializer(
         source='recipeingredient_set',
         many=True,

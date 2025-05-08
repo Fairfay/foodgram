@@ -27,7 +27,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 class CustomUserSerializer(UserSerializer):
     """Serializer for user data."""
     is_subscribed = serializers.SerializerMethodField()
-    avatar = Base64ImageField(required=False)
+    avatar = Base64ImageField(required=False, allow_null=True)
     class Meta:
         model = User
         fields = (
