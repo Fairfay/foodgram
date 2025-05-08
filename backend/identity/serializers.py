@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
+from recipes.models import Recipe
 from .models import Subscription
 
 User = get_user_model()
@@ -52,8 +53,8 @@ class CustomUserSerializer(UserSerializer):
 class SubscriptionRecipeSerializer(serializers.ModelSerializer):
     """Serializer for recipes in subscriptions."""
     class Meta:
-        model = 'recipes.Recipe'
-        fields = ('id', 'name', 'image', 'cooking_time')
+        model = Recipe
+        fields = ('__all__')
 
 
 class SubscriptionSerializer(CustomUserSerializer):
