@@ -98,6 +98,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         many=True
     )
     image = Base64ImageField()
+    author = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Recipe
@@ -107,7 +108,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             'image',
             'name',
             'text',
-            'cooking_time'
+            'cooking_time',
+            'author'
         )
 
     def create(self, validated_data):
@@ -119,7 +121,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         for ingredient_data in ingredients_data:
             RecipeIngredient.objects.create(
                 recipe=recipe,
-                ingredient_id=ingredient_data['id'],  # Изменено здесь
+                ingredient_id=ingredient_data['id'],
                 amount=ingredient_data['amount']
             )
         return recipe
@@ -131,7 +133,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             for ingredient_data in ingredients_data:
                 RecipeIngredient.objects.create(
                     recipe=instance,
-                    ingredient_id=ingredient_data['id'],  # Изменено здесь
+                    ingredient_id=ingredient_data['id'],
                     amount=ingredient_data['amount']
                 )
         if 'tags' in validated_data:
@@ -151,7 +153,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         ingredients_list = []
         for ingredient in ingredients:
-            ingredient_id = ingredient['id']  # Изменено здесь
+            ingredient_id = ingredient['id']
             if ingredient_id in ingredients_list:
                 raise serializers.ValidationError(
                     'Ingredients must be unique'
@@ -163,9 +165,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 )
 
         cooking_time = data.get('cooking_time')
-        if int(cooking_time) <= 0:  # Добавлено преобразование в int
+        if int(cooking_time) <= 0:
             raise serializers.ValidationError(
                 'Cooking time must be greater than 0'
             )
 
         return data
+
+    def to_representation(self, instance):
+        return RecipeSerializer(instance, context=self.context).data
