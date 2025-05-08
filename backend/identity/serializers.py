@@ -69,9 +69,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         )
 
     def get_recipes(self, obj):
-        from recipes.serializers import RecipeShortSerializer
-        recipes = obj.recipes.all()[:3]
-        return RecipeShortSerializer(recipes, many=True).data
+        recipes = obj.recipes.all()
+        return RecipeSerializer(recipes, many=True).data
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
