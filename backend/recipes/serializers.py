@@ -19,7 +19,14 @@ class UserSerializer(serializers.ModelSerializer):
     """Сериализатор для пользователей."""
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name')
+        fields = (
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'avatar'
+        )
 
 
 class TagSerializer(serializers.ModelSerializer):
