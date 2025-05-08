@@ -21,6 +21,14 @@ class CustomUserViewSet(UserViewSet):
     pagination_class = PageNumberPagination
     serializer_class = CustomUserSerializer
 
+    def _change_avatar(self, data):
+        """Изменение аватара пользователя."""
+        user = self.request.user
+        serializer = self.get_serializer(user, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return serializer
+
     def get_queryset(self):
         user = self.request.user
         if self.action in ('list', 'retrieve'):

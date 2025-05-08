@@ -29,9 +29,10 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Serializer for recipe ingredients."""
-    id = serializers.ReadOnlyField(source='ingredient.id')
-    name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
+    id = serializers.IntegerField(source='ingredient.id')
+    name = serializers.CharField(source='ingredient.name')
+    measurement_unit = serializers.CharField(source='ingredient.measurement_unit')
+    amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredient
@@ -87,12 +88,16 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating and updating recipes."""
-    ingredients = RecipeIngredientSerializer(many=True)
+    ingredients = serializers.ListField(
+        child=serializers.DictField(
+            child=serializers.CharField()
+        )
+    )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True
     )
-    image = Base64ImageField()
+    image = serializers.Base64ImageField()
 
     class Meta:
         model = Recipe
@@ -114,7 +119,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         for ingredient_data in ingredients_data:
             RecipeIngredient.objects.create(
                 recipe=recipe,
-                ingredient_id=ingredient_data['id'],
+                ingredient_id=ingredient_data['id'],  # Изменено здесь
                 amount=ingredient_data['amount']
             )
         return recipe
@@ -126,7 +131,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             for ingredient_data in ingredients_data:
                 RecipeIngredient.objects.create(
                     recipe=instance,
-                    ingredient_id=ingredient_data['id'],
+                    ingredient_id=ingredient_data['id'],  # Изменено здесь
                     amount=ingredient_data['amount']
                 )
         if 'tags' in validated_data:
@@ -146,18 +151,19 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         ingredients_list = []
         for ingredient in ingredients:
-            if ingredient['id'] in ingredients_list:
+            ingredient_id = ingredient['id']  # Изменено здесь
+            if ingredient_id in ingredients_list:
                 raise serializers.ValidationError(
                     'Ingredients must be unique'
                 )
-            ingredients_list.append(ingredient['id'])
+            ingredients_list.append(ingredient_id)
             if int(ingredient['amount']) <= 0:
                 raise serializers.ValidationError(
                     'Amount must be greater than 0'
                 )
 
         cooking_time = data.get('cooking_time')
-        if cooking_time <= 0:
+        if int(cooking_time) <= 0:  # Добавлено преобразование в int
             raise serializers.ValidationError(
                 'Cooking time must be greater than 0'
             )
