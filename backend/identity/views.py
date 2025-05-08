@@ -1,108 +1,115 @@
+from django.shortcuts import render
+
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+from djoser.views import UserViewSet
+from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from djoser.views import UserViewSet
-from rest_framework.viewsets import ModelViewSet
 
-from api.serializers import FollowSerializer
-from identity.serializers import (
-    CustomUserCreateSerializer,
-    CustomUserSerializer,
-    AvatarSerializer
-)
-from identity.models import User, Follow
+from .models import Subscription
+from .serializers import CustomUserSerializer, SubscriptionSerializer
 
-
-class CustomPagination(PageNumberPagination):
-    page_size = 6
-    page_size_query_param = 'limit'
+User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
-    pagination_class = CustomPagination
+    """Custom user viewset."""
+    queryset = User.objects.all()
+    pagination_class = PageNumberPagination
+    serializer_class = CustomUserSerializer
 
-    def get_permissions(self):
-        public_actions = [
-            'list', 'retrieve', 'create',
-            'activation', 'reset_password',
-            'reset_password_confirm', 'token_create'
-        ]
-        if self.action in public_actions:
-            return [AllowAny()]
-        return [IsAuthenticated()]
-
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return CustomUserCreateSerializer
-        if self.action == 'avatar':
-            return AvatarSerializer
-        return CustomUserSerializer
+    def get_queryset(self):
+        user = self.request.user
+        if self.action in ('list', 'retrieve'):
+            return (
+                User.objects.prefetch_related(
+                    Subscriber.get_prefetch_subscribers('subscribers', user),
+                )
+                .order_by('id')
+                .all()
+            )
+        return User.objects.all()
 
     @action(
+        methods=['get'],
         detail=False,
-        methods=['put', 'patch'],
         permission_classes=[IsAuthenticated],
-        serializer_class=AvatarSerializer
+        url_name='me',
+    )
+    def me(self, request, *args, **kwargs):
+        """Данные о себе"""
+        return super().me(request, *args, **kwargs)
+
+    @action(
+        methods=['put'],
+        detail=False,
+        permission_classes=[IsAuthenticated],
+        url_path='me/avatar',
+        url_name='me-avatar',
     )
     def avatar(self, request):
-        user = request.user
-        serializer = self.get_serializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        """Добавление или удаление аватара"""
+        serializer = self._change_avatar(request.data)
+        return Response(serializer.data)
 
-    @action(
-        detail=False,
-        permission_classes=[IsAuthenticated]
-    )
-    def subscriptions(self, request):
-        queryset = request.user.follower.all()
-        page = self.paginate_queryset(queryset)
-        serializer = FollowSerializer(
-            page,
-            many=True,
-            context={'request': request}
-        )
-        return self.get_paginated_response(serializer.data)
+    @avatar.mapping.delete
+    def delete_avatar(self, request):
+        data = request.data
+        if 'avatar' not in data:
+            data = {'avatar': None}
+        self._change_avatar(data)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=True,
         methods=['post', 'delete'],
         permission_classes=[IsAuthenticated]
     )
-    def subscribe(self, request, pk=None):
-        author = get_object_or_404(self.queryset, pk=pk)
+    def subscribe(self, request, id=None):
+        user = request.user
+        author = get_object_or_404(User, id=id)
 
         if request.method == 'POST':
-            if author == request.user:
+            if user == author:
                 return Response(
-                    {'error': 'Нельзя подписаться на самого себя'},
+                    {'error': 'You cannot subscribe to yourself'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-
-            if Follow.objects.filter(
-                user=request.user,
-                author=author
-            ).exists():
+            if Subscription.objects.filter(user=user, author=author).exists():
                 return Response(
-                    {'error': 'Вы уже подписаны на этого пользователя'},
+                    {'error': 'You are already subscribed to this user'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-
-            Follow.objects.create(user=request.user, author=author)
-            serializer = FollowSerializer(
+            Subscription.objects.create(user=user, author=author)
+            serializer = SubscriptionSerializer(
                 author,
                 context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        follow = get_object_or_404(
-            Follow,
-            user=request.user,
-            author=author
+        if request.method == 'DELETE':
+            subscription = get_object_or_404(
+                Subscription,
+                user=user,
+                author=author
+            )
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=False,
+        permission_classes=[IsAuthenticated]
+    )
+    def subscriptions(self, request):
+        user = request.user
+        queryset = User.objects.filter(following__user=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = SubscriptionSerializer(
+            pages,
+            many=True,
+            context={'request': request}
         )
-        follow.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return self.get_paginated_response(serializer.data) 

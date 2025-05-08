@@ -3,67 +3,63 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """Кастомная модель пользователя"""
+    """Custom user model."""
     email = models.EmailField(
-        'Email',
+        'Email address',
         unique=True,
-        help_text='Введите email'
+        max_length=254,
+    )
+    first_name = models.CharField(
+        'First name',
+        max_length=150,
+    )
+    last_name = models.CharField(
+        'Last name',
+        max_length=150,
     )
     avatar = models.ImageField(
-        'Аватар',
+        'Avatar',
+        upload_to='users/avatars/',
+        null=True,
         blank=True,
-        upload_to='avatars/',
-        help_text='Загрузите изображение в формате JPG или PNG'
     )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
         ordering = ['id']
 
     def __str__(self):
         return self.username
 
-    def get_subscribers_count(self):
-        return self.following.count()
 
-    def get_recipes_count(self):
-        return self.recipes.count()
-
-
-class Follow(models.Model):
-    """Модель подписок на авторов"""
+class Subscription(models.Model):
+    """Model for user subscriptions."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='follower',
-        verbose_name='Подписчик'
+        verbose_name='Follower',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='following',
-        verbose_name='Автор'
+        verbose_name='Following',
     )
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        ordering = ['-created_at']
+        verbose_name = 'Subscription'
+        verbose_name_plural = 'Subscriptions'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
-                name='unique_follow'
-            ),
-            models.CheckConstraint(
-                name='user_is_not_author',
-                check=~models.Q(user=models.F('author'))
+                name='unique_subscription'
             )
         ]
 
     def __str__(self):
-        return f'{self.user.username} подписан на {self.author.username}'
+        return f'{self.user} follows {self.author}' 

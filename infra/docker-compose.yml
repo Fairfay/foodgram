@@ -9,7 +9,7 @@ services:
       - ./.env
 
   backend:
-    image: fairfay/foodgram-backend:latest
+    # image: fairfay/foodgram-backend:latest
     build: ../backend
     restart: always
     volumes:
@@ -21,7 +21,7 @@ services:
       - ./.env
 
   frontend:
-    image: fairfay/foodgram-front:latest
+    # image: fairfay/foodgram-front:latest
     container_name: foodgram-front
     build: ../frontend
     volumes:

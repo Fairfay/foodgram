@@ -1,21 +1,29 @@
-from rest_framework import serializers
-from rest_framework.serializers import SerializerMethodField
 from django.contrib.auth import get_user_model
-from rest_framework.validators import UniqueValidator
-
-from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer, UserSerializer
 
-from identity.models import User, Follow
+from .models import Subscription
 
 User = get_user_model()
 
 
+class CustomUserCreateSerializer(UserCreateSerializer):
+    """Serializer for user creation."""
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'password',
+        )
+
+
 class CustomUserSerializer(UserSerializer):
-    '''Сериализатор для пользователя'''
-    avatar = Base64ImageField(required=False, max_length=None)
-    is_subscribed = SerializerMethodField(read_only=True)
-    recipes_count = SerializerMethodField(read_only=True)
+    """Serializer for user data."""
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -26,75 +34,50 @@ class CustomUserSerializer(UserSerializer):
             'first_name',
             'last_name',
             'is_subscribed',
-            'recipes_count',
-            'avatar',
         )
-        read_only_fields = ('is_subscribed', 'recipes_count')
 
     def get_is_subscribed(self, obj):
-        '''Проверка подписки пользователя'''
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
-        return obj.following.filter(user=request.user).exists()
+        return Subscription.objects.filter(
+            user=request.user,
+            author=obj
+        ).exists()
 
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
 
-
-class CustomUserCreateSerializer(UserCreateSerializer):
-    '''Создание пользователя'''
-    email = serializers.EmailField(
-        validators=[
-            UniqueValidator(
-                queryset=User.objects.all(),
-                message='Пользователь с таким email уже существует'
-            )
-        ]
-    )
-    username = serializers.CharField(
-        validators=[
-            UniqueValidator(
-                queryset=User.objects.all(),
-                message='Пользователь с таким именем уже существует'
-            )
-        ]
-    )
+class SubscriptionSerializer(serializers.ModelSerializer):
+    """Serializer for subscriptions."""
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
-            'email', 'id', 'username', 'first_name',
-            'last_name', 'password'
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
         )
-        extra_kwargs = {
-            'password': {'write_only': True},
-            'email': {'required': True},
-            'first_name': {'required': True},
-            'last_name': {'required': True}
-        }
 
-    def validate_username(self, value):
-        if value.lower() == 'me':
-            raise serializers.ValidationError(
-                'Имя пользователя не может быть "me"'
-            )
-        return value
+    def get_recipes(self, obj):
+        from recipes.serializers import RecipeShortSerializer
+        recipes = obj.recipes.all()[:3]
+        return RecipeShortSerializer(recipes, many=True).data
 
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
 
-class AvatarSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('avatar',)
-
-    def validate_avatar(self, value):
-        if value:
-            if value.size > 2 * 1024 * 1024:  # 2MB
-                raise serializers.ValidationError(
-                    'Размер файла не может превышать 2MB'
-                )
-            if not value.content_type.startswith('image/'):
-                raise serializers.ValidationError(
-                    'Файл должен быть изображением'
-                )
-        return value
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        return Subscription.objects.filter(
+            user=request.user,
+            author=obj
+        ).exists() 
