@@ -9,7 +9,6 @@ from recipes.models import (
     ShoppingCart,
     Tag,
 )
-from identity.serializers import CustomUserSerializer
 
 User = get_user_model()
 
@@ -18,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
     """Serializer for users."""
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'avatar')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name')
 
 
 class TagSerializer(serializers.ModelSerializer):
