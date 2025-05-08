@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.serializers import RecipeSerializer
 from .models import Subscription
 
 User = get_user_model()
@@ -50,6 +49,13 @@ class CustomUserSerializer(UserSerializer):
         ).exists()
 
 
+class SubscriptionRecipeSerializer(serializers.ModelSerializer):
+    """Serializer for recipes in subscriptions."""
+    class Meta:
+        model = 'recipes.Recipe'
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
 class SubscriptionSerializer(CustomUserSerializer):
     """Serializer for subscriptions."""
     recipes = serializers.SerializerMethodField()
@@ -61,7 +67,7 @@ class SubscriptionSerializer(CustomUserSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes = obj.recipes.all()[:3]  # Limit to 3 recipes
-        return RecipeSerializer(
+        return SubscriptionRecipeSerializer(
             recipes,
             many=True,
             context={'request': request}
