@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from recipes.models import (
@@ -148,7 +148,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['get'],
-        permission_classes=[IsAuthenticated],
+        permission_classes=[AllowAny],
         url_path='get-link'
     )
     def get_link(self, request, pk=None):
