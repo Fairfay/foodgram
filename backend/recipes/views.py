@@ -144,3 +144,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response = HttpResponse(''.join(shopping_list), content_type='text/plain')
         response['Content-Disposition'] = 'attachment; filename="shopping-list.txt"'
         return response
+
+    @action(
+        detail=True,
+        methods=['get'],
+        permission_classes=[IsAuthenticated]
+    )
+    def get_link(self, request, pk=None):
+        """Get recipe link."""
+        return Response({
+            'link': f'https://tychindas.sytes.net/recipes/{pk}/'
+        })
