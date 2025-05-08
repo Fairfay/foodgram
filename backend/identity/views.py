@@ -1,26 +1,25 @@
-from django.shortcuts import render
-
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+
 from djoser.views import UserViewSet
-from rest_framework import status, viewsets
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
-from .models import Subscription
-from .serializers import (
+from identity.models import Subscription
+from identity.serializers import (
     CustomUserSerializer,
     SubscriptionSerializer,
-    UserCreateSerializer
 )
+
 
 User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
-    """Custom user viewset."""
+    """Вьюсет для пользователей."""
     queryset = User.objects.all()
     pagination_class = PageNumberPagination
     serializer_class = CustomUserSerializer
@@ -46,7 +45,7 @@ class CustomUserViewSet(UserViewSet):
         url_name='me',
     )
     def me(self, request, *args, **kwargs):
-        """Данные о себе"""
+        """Данные о пользователе"""
         return super().me(request, *args, **kwargs)
 
     @action(
@@ -57,12 +56,13 @@ class CustomUserViewSet(UserViewSet):
         url_name='me-avatar',
     )
     def avatar(self, request):
-        """Добавление или удаление аватара"""
+        """Аватар пользователя"""
         serializer = self._change_avatar(request.data)
         return Response(serializer.data)
 
     @avatar.mapping.delete
     def delete_avatar(self, request):
+        """Удаление аватара пользователя"""
         data = request.data
         if 'avatar' not in data:
             data = {'avatar': None}
@@ -75,21 +75,23 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, id=None):
+        """Подписка на пользователя"""
         user = request.user
         author = get_object_or_404(User, id=id)
 
         if request.method == 'POST':
             if user == author:
                 return Response(
-                    {'error': 'You cannot subscribe to yourself'},
+                    {'error': 'Вы не можете подписаться на самого себя'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             if Subscription.objects.filter(user=user, author=author).exists():
                 return Response(
-                    {'error': 'You are already subscribed to this user'},
+                    {'error': 'Вы уже подписаны на этого пользователя'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            subscription = Subscription.objects.create(user=user, author=author)
+            subscription = Subscription.objects.create(user=user,
+                                                       author=author)
             serializer = SubscriptionSerializer(
                 subscription.author,
                 context={'request': request}
@@ -110,6 +112,7 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscriptions(self, request):
+        """Подписки пользователя"""
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -124,4 +127,4 @@ class CustomUserViewSet(UserViewSet):
             many=True,
             context={'request': request}
         )
-        return Response(serializer.data) 
+        return Response(serializer.data)

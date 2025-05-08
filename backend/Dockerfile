@@ -1,49 +1,38 @@
-# Build stage
-FROM python:3.9-slim as builder
+# Первый этап сборки
+FROM python:3.9-slim AS builder
 
-# Set environment variables
+# Установка переменных окружения
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Set work directory
+# Установка рабочей директории
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
+# Установка зависимостей Python
 COPY requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
-# Final stage
+# Последний этап сборки
 FROM python:3.9-slim
 
-# Set environment variables
+# Установка переменных окружения
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Set work directory
+# Установка рабочей директории
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy wheels from builder
+# Копирование wheels из первого этапа
 COPY --from=builder /app/wheels /wheels
 COPY --from=builder /app/requirements.txt .
 
-# Install Python dependencies
+# Установка зависимостей Python
 RUN pip install --no-cache /wheels/*
 
-# Copy project files
+# Копирование файлов проекта
 COPY . .
 
-# Run gunicorn
+# Запуск gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "server.wsgi"] 

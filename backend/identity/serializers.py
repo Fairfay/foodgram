@@ -3,14 +3,16 @@ from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from recipes.models import Recipe
-from .models import Subscription
+from identity.models import Subscription
+
 
 User = get_user_model()
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
-    """Serializer for user creation."""
+    """Сериализатор для создания пользователя."""
     avatar = Base64ImageField(required=False)
+
     class Meta:
         model = User
         fields = (
@@ -25,14 +27,15 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
 
 class CustomUserSerializer(UserSerializer):
-    """Serializer for user data."""
+    """Сериализатор для данных пользователя."""
     is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField(required=False, allow_null=True)
+
     class Meta:
         model = User
         fields = (
-            'email',
             'id',
+            'email',
             'username',
             'first_name',
             'last_name',
@@ -51,23 +54,24 @@ class CustomUserSerializer(UserSerializer):
 
 
 class SubscriptionRecipeSerializer(serializers.ModelSerializer):
-    """Serializer for recipes in subscriptions."""
+    """Сериализатор для рецептов в подписках."""
     class Meta:
         model = Recipe
         fields = ('__all__')
 
 
 class SubscriptionSerializer(CustomUserSerializer):
-    """Serializer for subscriptions."""
+    """Сериализатор для подписок."""
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta(CustomUserSerializer.Meta):
-        fields = CustomUserSerializer.Meta.fields + ('recipes', 'recipes_count')
+        fields = CustomUserSerializer.Meta.fields + ('recipes',
+                                                     'recipes_count')
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        recipes = obj.recipes.all()[:3]  # Limit to 3 recipes
+        recipes = obj.recipes.all()[:3]
         return SubscriptionRecipeSerializer(
             recipes,
             many=True,

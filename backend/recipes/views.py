@@ -2,12 +2,13 @@ from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from djoser.views import UserViewSet
+
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
+from server.settings import DOMAIN
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -23,18 +24,19 @@ from recipes.serializers import (
     TagSerializer,
 )
 
+
 User = get_user_model()
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for tags."""
+    """ViewSet для тегов."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for ingredients."""
+    """ViewSet для ингредиентов."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
@@ -48,7 +50,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """ViewSet for recipes."""
+    """ViewSet для рецептов."""
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
@@ -62,7 +64,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         queryset = Recipe.objects.all()
         author = self.request.query_params.get('author')
         is_favorited = self.request.query_params.get('is_favorited')
-        is_in_shopping_cart = self.request.query_params.get('is_in_shopping_cart')
+        is_in_shopping_cart = self.request.query_params.get(
+            'is_in_shopping_cart'
+        )
         tags = self.request.query_params.getlist('tags')
 
         if author:
@@ -86,16 +90,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-            if Favorite.objects.filter(user=request.user, recipe=recipe).exists():
+            if Favorite.objects.filter(user=request.user,
+                                       recipe=recipe).exists():
                 return Response(
-                    {'error': 'Recipe is already in favorites'},
+                    {'error': 'Рецепт уже в избранном'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             Favorite.objects.create(user=request.user, recipe=recipe)
             serializer = RecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        favorite = get_object_or_404(Favorite, user=request.user, recipe=recipe)
+
+        favorite = get_object_or_404(Favorite,
+                                     user=request.user,
+                                     recipe=recipe)
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -107,16 +114,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
         if request.method == 'POST':
-            if ShoppingCart.objects.filter(user=request.user, recipe=recipe).exists():
+            if ShoppingCart.objects.filter(user=request.user,
+                                           recipe=recipe).exists():
                 return Response(
-                    {'error': 'Recipe is already in shopping cart'},
+                    {'error': 'Рецепт уже в корзине покупок'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             ShoppingCart.objects.create(user=request.user, recipe=recipe)
             serializer = RecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
-        shopping_cart = get_object_or_404(ShoppingCart, user=request.user, recipe=recipe)
+        shopping_cart = get_object_or_404(ShoppingCart,
+                                          user=request.user,
+                                          recipe=recipe)
         shopping_cart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -141,8 +151,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 f'{ingredient["ingredient__measurement_unit"]}\n'
             )
 
-        response = HttpResponse(''.join(shopping_list), content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename="shopping-list.txt"'
+        response = HttpResponse(''.join(shopping_list),
+                                content_type='text/plain')
+        response['Content-Disposition'] = (
+            'attachment; '
+            'filename="shopping-list.txt"'
+        )
         return response
 
     @action(
@@ -152,7 +166,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='get-link'
     )
     def get_link(self, request, pk=None):
-        """Get recipe link."""
+        """Получить ссылку на рецепт."""
         return Response({
-            'short-link': f'https://tychindas.sytes.net/recipes/{pk}/'
+            'short-link': f'https://{DOMAIN}/recipes/{pk}/'
         })

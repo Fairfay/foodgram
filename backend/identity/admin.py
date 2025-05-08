@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from .models import Subscription
+from identity.models import Subscription
 
 User = get_user_model()
 
@@ -13,8 +13,11 @@ class CustomUserAdmin(admin.ModelAdmin):
     ordering = ('username',)
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'email', 'avatar')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Personal info', {'fields': ('first_name', 'last_name',
+                                      'email', 'avatar')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff',
+                                    'is_superuser', 'groups',
+                                    'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     search_help_text = 'Поиск по имени пользователя, email, имени или фамилии'
@@ -23,6 +26,7 @@ class CustomUserAdmin(admin.ModelAdmin):
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ('user', 'author')
-    search_fields = ('user__username', 'user__email', 'author__username', 'author__email')
+    search_fields = ('user__username', 'user__email',
+                     'author__username', 'author__email')
     list_filter = ('user', 'author')
-    search_help_text = 'Поиск по имени пользователя или email подписчика/автора'
+    search_help_text = 'Поиск по имени пользователя или email'

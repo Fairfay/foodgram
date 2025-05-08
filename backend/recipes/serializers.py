@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
+
 from recipes.models import (
     Favorite,
     Ingredient,
@@ -10,35 +11,38 @@ from recipes.models import (
     Tag,
 )
 
+
 User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer for users."""
+    """Сериализатор для пользователей."""
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name')
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """Serializer for tags."""
+    """Сериализатор для тегов."""
     class Meta:
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Serializer for ingredients."""
+    """Сериализатор для ингредиентов."""
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
-    """Serializer for recipe ingredients."""
+    """Сериализатор для ингредиентов рецептов."""
     id = serializers.IntegerField(source='ingredient.id')
     name = serializers.CharField(source='ingredient.name')
-    measurement_unit = serializers.CharField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.CharField(
+        source='ingredient.measurement_unit'
+    )
     amount = serializers.IntegerField()
 
     class Meta:
@@ -47,7 +51,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    """Serializer for recipes."""
+    """Сериализатор для рецептов."""
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True)
     ingredients = RecipeIngredientSerializer(
@@ -94,7 +98,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    """Serializer for creating and updating recipes."""
+    """Сериализатор для создание рецептов"""
     ingredients = serializers.ListField(
         child=serializers.DictField(
             child=serializers.CharField()

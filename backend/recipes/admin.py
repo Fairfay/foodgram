@@ -1,6 +1,6 @@
 from django.contrib import admin
-from django.db.models import Count
-from .models import (
+
+from recipes.models import (
     Favorite,
     Ingredient,
     Recipe,
@@ -53,4 +53,4 @@ class FavoriteAdmin(admin.ModelAdmin):
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = ('user', 'recipe')
     search_fields = ('user__username', 'recipe__name')
-    list_filter = ('user', 'recipe') 
+    list_filter = ('user', 'recipe')

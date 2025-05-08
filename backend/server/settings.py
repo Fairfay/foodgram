@@ -1,11 +1,8 @@
-import os
 from pathlib import Path
 from decouple import config, Csv
-import logging
 from datetime import timedelta
 
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY')
@@ -13,7 +10,6 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -26,7 +22,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
-    'django_filters',
     'colorfield',
     'django.contrib.postgres',
 
@@ -180,7 +175,6 @@ DJOSER = {
     }
 }
 
-# CSRF settings
 CSRF_TRUSTED_ORIGINS = [
     'https://tychindas.sytes.net',
     'http://tychindas.sytes.net',
@@ -191,8 +185,6 @@ CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_USE_SESSIONS = True
-
-# CORS settings
 CORS_ALLOWED_ORIGINS = [
     'https://tychindas.sytes.net',
     'http://tychindas.sytes.net',
@@ -220,7 +212,8 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# Session settings
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax' 
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+DOMAIN = config('DOMAIN')
