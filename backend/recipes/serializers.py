@@ -13,6 +13,13 @@ from recipes.models import (
 User = get_user_model()
 
 
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer for users."""
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'first_name', 'last_name')
+
+
 class TagSerializer(serializers.ModelSerializer):
     """Serializer for tags."""
     class Meta:
@@ -42,7 +49,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     """Serializer for recipes."""
     tags = TagSerializer(many=True, read_only=True)
-    author = serializers.PrimaryKeyRelatedField(read_only=True)
+    author = UserSerializer(read_only=True)
     ingredients = RecipeIngredientSerializer(
         source='recipeingredient_set',
         many=True,
