@@ -4,6 +4,11 @@ from django.db import models
 
 class User(AbstractUser):
     """Кастомная модель пользователя"""
+    email = models.EmailField(
+        'Email',
+        unique=True,
+        help_text='Введите email'
+    )
     avatar = models.ImageField(
         'Аватар',
         blank=True,
