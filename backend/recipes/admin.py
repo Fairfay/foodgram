@@ -3,9 +3,10 @@ from django.contrib.admin import display
 from django.utils.translation import gettext_lazy as _
 
 from recipes.models import (
-    Favorite, Follow, Ingredient, Recipe,
+    Favorite, Ingredient, Recipe,
     RecipeIngredient, ShoppingCart, Tag
 )
+from identity.models import Follow
 
 
 class TagAdmin(admin.ModelAdmin):

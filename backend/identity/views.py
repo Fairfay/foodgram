@@ -13,8 +13,7 @@ from identity.serializers import (
     CustomUserSerializer,
     AvatarSerializer
 )
-from recipes.models import Follow
-from .models import User
+from identity.models import User, Follow
 
 
 class CustomPagination(PageNumberPagination):

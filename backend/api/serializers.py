@@ -6,9 +6,11 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import (
-    Follow, Ingredient, Recipe, RecipeIngredient,
+    Ingredient, Recipe, RecipeIngredient,
     Favorite, ShoppingCart, Tag
 )
+
+from identity.models import Follow
 
 User = get_user_model()
 

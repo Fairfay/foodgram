@@ -9,10 +9,10 @@ from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 
 from recipes.models import (
-    Follow, Ingredient, Recipe, RecipeIngredient,
+    Ingredient, Recipe, RecipeIngredient,
     Favorite, ShoppingCart, Tag
-)
-from identity.models import User
+)   
+from identity.models import User, Follow
 from api.filters import IngredientSearchFilter, RecipesFilter
 from api.permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from api.serializers import (

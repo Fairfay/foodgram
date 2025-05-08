@@ -6,8 +6,7 @@ from rest_framework.validators import UniqueValidator
 from drf_extra_fields.fields import Base64ImageField
 from djoser.serializers import UserCreateSerializer, UserSerializer
 
-from recipes.models import Follow
-from identity.models import User
+from identity.models import User, Follow
 
 User = get_user_model()
 
