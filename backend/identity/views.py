@@ -44,15 +44,6 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=False,
-        methods=['get'],
-        permission_classes=[IsAuthenticated]
-    )
-    def me(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
-
-    @action(
-        detail=False,
         methods=['put', 'patch'],
         permission_classes=[IsAuthenticated],
         serializer_class=AvatarSerializer
@@ -116,27 +107,3 @@ class CustomUserViewSet(UserViewSet):
         )
         follow.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class UserViewSet(ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = CustomUserSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return CustomUserCreateSerializer
-        return CustomUserSerializer
-
-    @action(
-        detail=False,
-        methods=['put', 'patch'],
-        permission_classes=[IsAuthenticated],
-        serializer_class=AvatarSerializer
-    )
-    def avatar(self, request):
-        user = request.user
-        serializer = self.get_serializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)

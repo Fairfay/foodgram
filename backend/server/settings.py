@@ -20,8 +20,7 @@ DEBUG = config('DEBUG', cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
 INTERNAL_IPS = [
-    '0.0.0.0',
-    '127.0.0.1'
+    '0.0.0.0'
 ]
 
 # Application definition
@@ -33,10 +32,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
 
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+    'django_filters',
     'colorfield',
 
     'identity.apps.IdentityConfig',
@@ -52,15 +53,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://tychindas.sytes.net'
 ]
 
 ROOT_URLCONF = 'server.urls'
@@ -117,18 +109,14 @@ DJOSER = {
     "LOGIN_FIELD": "email",
     "HIDE_USERS": False,
     "SERIALIZERS": {
+        "user_create": "identity.serializers.CustomUserCreateSerializer",
         "user": "identity.serializers.CustomUserSerializer",
         "current_user": "identity.serializers.CustomUserSerializer",
-        "user_create": "identity.serializers.CustomUserCreateSerializer",
     },
     "PERMISSIONS": {
         "user": ("rest_framework.permissions.IsAuthenticated",),
         "user_list": ("rest_framework.permissions.AllowAny",),
-        "user_create": ("rest_framework.permissions.AllowAny",),
-        "token_create": ("rest_framework.permissions.AllowAny",),
-        "token_destroy": ("rest_framework.permissions.IsAuthenticated",),
     },
-    "TOKEN_MODEL": "rest_framework.authtoken.models.Token",
 }
 
 
