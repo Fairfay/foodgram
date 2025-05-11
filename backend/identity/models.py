@@ -2,24 +2,29 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+MAX_EMAIL_LENGTH = 254
+MAX_NAME_LENGTH = 150
+AVATAR_UPLOAD_PATH = 'users/avatars/'
+
+
 class User(AbstractUser):
     """Переопределенная модель пользователя"""
     email = models.EmailField(
         'Электронная почта',
         unique=True,
-        max_length=254,
+        max_length=MAX_EMAIL_LENGTH,
     )
     first_name = models.CharField(
         'Имя',
-        max_length=150,
+        max_length=MAX_NAME_LENGTH,
     )
     last_name = models.CharField(
         'Фамилия',
-        max_length=150,
+        max_length=MAX_NAME_LENGTH,
     )
     avatar = models.ImageField(
         'Аватар',
-        upload_to='users/avatars/',
+        upload_to=AVATAR_UPLOAD_PATH,
         null=True,
         blank=True,
     )
@@ -54,6 +59,7 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        ordering = ['id']
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
