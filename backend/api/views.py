@@ -94,13 +94,18 @@ class CustomUserViewSet(UserViewSet):
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, id=None):
-        """Подписка на пользователя"""
         user = request.user
         author = get_object_or_404(User, id=id)
 
         if request.method == 'POST':
-            subscription_data = {'user': user, 'author': author}
-            serializer = SubscriptionCreateSerializer(data=subscription_data)
+            subscription_data = {
+                'user': user.id,
+                'author': author.id
+            }
+            serializer = SubscriptionCreateSerializer(
+                data=subscription_data,
+                context={'request': request}
+            )
             serializer.is_valid(raise_exception=True)
             subscription = serializer.save()
 
@@ -108,8 +113,10 @@ class CustomUserViewSet(UserViewSet):
                 subscription.author,
                 context={'request': request}
             )
-            return Response(response_serializer.data,
-                            status=status.HTTP_201_CREATED)
+            return Response(
+                response_serializer.data,
+                status=status.HTTP_201_CREATED
+            )
 
         if request.method == 'DELETE':
             subscription = get_object_or_404(
