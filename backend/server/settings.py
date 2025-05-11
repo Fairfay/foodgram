@@ -1,6 +1,7 @@
 from pathlib import Path
-from decouple import config, Csv
 from datetime import timedelta
+
+from decouple import config, Csv
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
