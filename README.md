@@ -108,8 +108,11 @@ POST /api/recipes/1/favorite/
 GET /api/recipes/download-shopping-cart/
 
 Автор
+
 Тычин Денис Александрович
+
 Email: tycindenis@gmail.com
 
 Вклад
+
 Любые предложения по улучшению проекта приветствуются! Создавайте issue или pull request в репозитории проекта.
