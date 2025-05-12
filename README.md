@@ -17,23 +17,41 @@
 
 ## Используемые технологии
 Backend :
+
 Python 3.12
+
 Django 4.2
+
 Django REST Framework (DRF)
+
 Djoser (JWT-аутентификация)
+
 PostgreSQL (основная БД)
+
 Pillow (обработка изображений)
+
 Gunicorn (WSGI-сервер)
+
 Nginx (обратный прокси-сервер)
+
 Docker (для контейнеризации)
+
 Frontend :
+
 React (SPA-приложение)
+
 Base64-изображения
+
 JavaScript/TypeScript
+
 API документация :
+
 drf-yasg (Swagger UI)
+
 Дополнительно :
+
 Debug Toolbar (для отладки)
+
 Decouple (управление конфигурациями)
 
 ## Инструкция по запуску
