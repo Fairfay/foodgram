@@ -19,6 +19,7 @@ User = get_user_model()
 MIN_AMOUNT = 1
 MAX_AMOUNT = 32000
 MIN_COOKING_TIME = 1
+MAX_COOKING_TIME = 32000
 MAX_RECIPES_IN_SUBSCRIPTION = 3
 
 
@@ -145,7 +146,10 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField(min_value=MIN_AMOUNT)
+    amount = serializers.IntegerField(
+        min_value=MIN_AMOUNT,
+        max_value=MAX_AMOUNT
+    )
 
     class Meta:
         model = RecipeIngredient
@@ -199,7 +203,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     author = serializers.PrimaryKeyRelatedField(read_only=True)
     cooking_time = serializers.IntegerField(
-        min_value=MIN_COOKING_TIME
+        min_value=MIN_COOKING_TIME,
+        max_value=MAX_COOKING_TIME
     )
 
     class Meta:
